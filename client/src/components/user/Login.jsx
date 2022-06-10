@@ -9,8 +9,10 @@ import {
     IconButton, 
     TextField 
 } from '@mui/material'
+import { useEffect } from 'react';
 import { useRef, useState } from 'react';
 import { useValue } from '../../context/ContextProvider'
+import GoogleOneTapLogin from './GoogleOneTapLogin';
 import PasswordField from './PasswordField';
 
 const Login = () => {
@@ -29,7 +31,26 @@ const Login = () => {
     }
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        //testing Loading
+        dispatch({type: 'START_LOADING'})
+
+        setTimeout(() => {
+            dispatch({type: 'END_LOADING'})
+        }, 6000)
+
+        //testing Notification
+        const password = passwordRef.current.value;
+        const confirmPassword = confirmPasswordRef.current.value;
+        if(password !== confirmPassword){
+            dispatch({type:'UPDATE_ALERT', payload: {open: true, severity: 'error', message: 'passwords do not match '}})
+        }
     }
+
+    //handle form title
+    useEffect(() => {
+        isRegister ? setTitle('Register') : setTitle('Login')
+    }, [isRegister])
 
     return (
         <Dialog
@@ -81,16 +102,16 @@ const Login = () => {
                         inputProps={{ minLength: 2 }}
                         required
                     />
-                    <PasswordField {...passwordRef}/>
+                    <PasswordField {...{passwordRef}}/>
                     {isRegister && 
                         <PasswordField
-                            passwordRef={passwordRef} 
+                            passwordRef={confirmPasswordRef} 
                             id = 'confirmPassword'
                             label = 'Confirm Password'
                         />
                     }
                 </DialogContent>
-                <DialogActions>
+                <DialogActions sx={{px:'19px'}}>
                     <Button 
                         type='submit' 
                         variant='contained' 
@@ -105,6 +126,10 @@ const Login = () => {
                 <Button onClick={() => setIsRegister(!isRegister)}>
                     {isRegister ? 'Login' : 'Register'}
                 </Button>
+            </DialogActions>
+
+            <DialogActions sx={{justifyContent:'center', py:'24px'}}>
+                <GoogleOneTapLogin />
             </DialogActions>
         </Dialog>
     )
