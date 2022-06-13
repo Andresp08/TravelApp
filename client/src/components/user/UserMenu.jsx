@@ -1,13 +1,40 @@
 import { Logout, Settings } from '@mui/icons-material'
 import { ListItemIcon, Menu, MenuItem } from '@mui/material'
 import { useValue } from '../../context/ContextProvider'
+import useCheckToken from '../../hooks/useCheckToken'
 
 const UserMenu = ({anchorUserMenu, setAnchorUserMenu}) => {
 
-    const {dispatch} = useValue();
+    useCheckToken();
+
+    const {dispatch, state:{currentUser}} = useValue();
 
     const handleCloseUserMenu = () => {
         setAnchorUserMenu(null)
+    }
+
+    const testUserAuthorization = async () => {
+        const url = import.meta.env.VITE_APP_SERVER_URL + '/room';
+        console.log('url', url);
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json',
+                    authorization: `Bearer ${currentUser.token}`
+                }
+            })
+            const data = await response.json();
+            console.log(data);
+
+            if(!data.success){
+                if(response.status === 401) dispatch({type:'UPDATE_USER', payload: null})
+                throw new Error(data.message)
+            }
+        } catch (error) {
+            dispatch({type: 'UPDATE_ALERT', payload: {open:true, severity: 'error', message: error.message}})
+            console.log(error);
+        }
     }
 
     return (
@@ -17,7 +44,7 @@ const UserMenu = ({anchorUserMenu, setAnchorUserMenu}) => {
             onClose={handleCloseUserMenu}
             onClick={handleCloseUserMenu}
         >
-            <MenuItem>
+            <MenuItem onClick={testUserAuthorization}>
                 <ListItemIcon>
                     <Settings fontSize='small' />
                 </ListItemIcon>
