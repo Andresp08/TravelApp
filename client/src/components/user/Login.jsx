@@ -32,19 +32,23 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        //testing Loading
-        dispatch({type: 'START_LOADING'})
+       const email = emailRef.current.value
+       const password = passwordRef.current.value
 
-        setTimeout(() => {
-            dispatch({type: 'END_LOADING'})
-        }, 6000)
+       //send login request if it's not register and return
+       const name = nameRef.current.value
+       const confirmPassword = confirmPasswordRef.current.value
 
-        //testing Notification
-        const password = passwordRef.current.value;
-        const confirmPassword = confirmPasswordRef.current.value;
-        if(password !== confirmPassword){
-            dispatch({type:'UPDATE_ALERT', payload: {open: true, severity: 'error', message: 'passwords do not match '}})
-        }
+       if(password !== confirmPassword) 
+        return dispatch({
+            type: 'UPDATE_ALERT', 
+            payload: {
+                open:true, 
+                severity: 'error', 
+                message: 'Passwords do not match'
+            }
+        });
+        //send register request
     }
 
     //handle form title
